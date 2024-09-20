@@ -4,27 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sōsuke Aizen - Former Captain</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- <link rel="stylesheet" href="styles.css"> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="#profile">Profile</a></li>
-                <li><a href="#status">Status</a></li>
-                <li><a href="#zanpakuto">Zanpakutō</a></li>
-                <li><a href="#partners">Partners</a></li>
-                <li><a href="#operations">Operations</a></li>
-            </ul>
-        </nav>
-        <h1>Sōsuke Aizen - Former Captain of Gotei 13</h1>
-    </header>
-
+   
     <main class="container">
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="#profile">Profile</a></li>
+                    <li><a href="#status">Status</a></li>
+                    <li><a href="#zanpakuto">Zanpakutō</a></li>
+                    <li><a href="#partners">Partners</a></li>
+                    <li><a href="#operations">Operations</a></li>
+                </ul>
+            </nav>
+            <h1>Sōsuke Aizen - Former Captain of Gotei 13</h1>
+        </header>
+    
         <div id="contentWrapper">
             <section id="profile" class="profile">
-                <img src="Aizen sosuke _ pfp _ wallpaper _ icon.jpeg" alt="Sōsuke Aizen Profile Picture" class="profile-img">
+                <a href="index1.html">
+                    <img src="Aizen sosuke _ pfp _ wallpaper _ icon.jpeg" alt="Sōsuke Aizen Profile Picture" class="profile-img">
+                </a>
                 <div class="profile-info">
                     <h2>Personal Information</h2>
                     <ul>
@@ -74,160 +77,473 @@
         </div>
     </main>
 
-    <audio id="aizenAudio" src="Shatter, Kyoka Suigetsu! [JY_g2Fk0qMM].mp3" preload="auto"></audio>
+    <audio id="aizenAudio" src="Aizen_shikai.mp3" preload="auto"></audio>
+    <audio id="aizenAudio2" src="yokuso_soul_society.mp3" preload="auto"></audio>
 
     <div id="glassEffect"></div>
-
+    <div class="container">
+        <section id="timeline" class="timeline">
+            <h2>Key Events in Sōsuke Aizen's Life</h2>
+            <div class="timeline-item left">
+                <div class="timeline-content">
+                    <h3>1850s</h3>
+                    <p>Aizen graduates from Shin'ō Academy and joins the Gotei 13.</p>
+                </div>
+            </div>
+            <div class="timeline-item right">
+                <div class="timeline-content">
+                    <h3>c. 1900</h3>
+                    <p>Becomes Lieutenant of the 5th Division under Captain Shinji Hirako.</p>
+                </div>
+            </div>
+            <div class="timeline-item left">
+                <div class="timeline-content">
+                    <h3>c. 1900-1908</h3>
+                    <p>Conducts Hollowfication experiments, affecting several Shinigami including the Visored.</p>
+                </div>
+            </div>
+            <div class="timeline-item right">
+                <div class="timeline-content">
+                    <h3>c. 1908</h3>
+                    <p>Promoted to Captain of the 5th Division after Shinji Hirako's exile.</p>
+                </div>
+            </div>
+            <div class="timeline-item left">
+                <div class="timeline-content">
+                    <h3>2001</h3>
+                    <p>Fakes his death and reveals his true nature, leaving Soul Society with Gin Ichimaru and Kaname Tōsen.</p>
+                </div>
+            </div>
+            <div class="timeline-item right">
+                <div class="timeline-content">
+                    <h3>2003</h3>
+                    <p>Battles in Fake Karakura Town against the Gotei 13 and Visored.</p>
+                </div>
+            </div>
+            <div class="timeline-item left">
+                <div class="timeline-content">
+                    <h3>2003</h3>
+                    <p>Defeated by Ichigo Kurosaki and sentenced to 20,000 years in Muken.</p>
+                </div>
+            </div>
+        </section>
+    </div>
     <script>
-        let anim;
-        let animationStarted = false;
-        let animationDuration = 1500; // Duration of the animation in milliseconds
+let anim;
+let animationStarted = false;
+let animationDuration = 1500; // Duration of the animation in milliseconds
 
-        function setup() {
-            createCanvas(windowWidth, windowHeight).style('position', 'fixed').style('top', '0').style('left', '0').style('pointer-events', 'none');
-            noLoop(); // Prevent continuous drawing
+function setup() {
+    createCanvas(windowWidth, windowHeight).style('position', 'fixed').style('top', '0').style('left', '0').style('pointer-events', 'none');
+    noLoop(); // Prevent continuous drawing
+}
+
+function draw() {
+    if (anim) {
+        background(0);
+        anim.draw(millis());
+        if (millis() - anim.t0 > animationDuration) {
+            anim = null; // Stop animation after it's finished
+            noLoop(); // Stop the draw loop
+            document.getElementById('contentWrapper').style.clipPath = 'none'; // Reset clip-path
+            document.querySelector('header').style.clipPath = 'none'; // Reset header clip-path
+            animationStarted = false; // Reset animation state
         }
+    }
+}
 
-        function draw() {
-            if (anim) {
-                background(0);
-                anim.draw(millis());
-                if (millis() - anim.t0 > animationDuration) {
-                    anim = null; // Stop animation after it's finished
-                    noLoop(); // Stop the draw loop
-                    document.getElementById('contentWrapper').style.clipPath = 'none'; // Reset clip-path
-                    animationStarted = false; // Reset animation state
-                }
-            }
+class AnimGlassBreak {
+    constructor(t0) {
+        this.t0 = t0;
+        this.shards = [];
+
+        // Divide the window into shards
+        this.divide(
+            createVector(0, 0),
+            createVector(width, 0),
+            createVector(width, height),
+            createVector(0, height)
+        );
+    }
+
+    divide(a, b, c, d, i = 0) {
+        const maxDivisions = 8;
+        if (i < maxDivisions) {
+            const range = map(i, 0, maxDivisions, 0.2, 0.45);
+            const low = 0.5 - range;
+            const high = 0.5 + range;
+            let p0 = p5.Vector.lerp(a, b, random(low, high));
+            let p1 = p5.Vector.lerp(c, d, random(low, high));
+            this.divide(p0, p1, d, a, i + 1);
+            this.divide(b, c, p1, p0, i + 1);
+        } else {
+            this.shards.push(new Shard(a, b, c, d));
         }
+    }
 
-        class AnimGlassBreak {
-            constructor(t0) {
-                this.t0 = t0;
-                this.shards = [];
-
-                // Divide the window into shards
-                this.divide(
-                    createVector(0, 0),
-                    createVector(width, 0),
-                    createVector(width, height),
-                    createVector(0, height)
-                );
-            }
-
-            divide(a, b, c, d, i = 0) {
-                const maxDivisions = 8;
-                if (i < maxDivisions) {
-                    const range = map(i, 0, maxDivisions, 0.2, 0.45);
-                    const low = 0.5 - range;
-                    const high = 0.5 + range;
-                    let p0 = p5.Vector.lerp(a, b, random(low, high));
-                    let p1 = p5.Vector.lerp(c, d, random(low, high));
-                    this.divide(p0, p1, d, a, i + 1);
-                    this.divide(b, c, p1, p0, i + 1);
-                } else {
-                    this.shards.push(new Shard(a, b, c, d));
-                }
-            }
-
-            draw(t) {
-                t = t - this.t0;
-                t = t / animationDuration * 60;
-                t = max(0, t - 2);
-                for (let shard of this.shards) {
-                    shard.draw(t);
-                    const clipPath = `polygon(${shard.getClipPath()})`;
-                    document.getElementById('contentWrapper').style.clipPath = clipPath;
-                }
-            }
+    draw(t) {
+        t = t - this.t0;
+        t = t / animationDuration * 60;
+        t = max(0, t - 2);
+        for (let shard of this.shards) {
+            shard.draw(t);
+            const clipPath = `polygon(${shard.getClipPath()})`;
+            document.getElementById('contentWrapper').style.clipPath = clipPath;
+            document.querySelector('header').style.clipPath = clipPath;
         }
+    }
+}
 
-        class Shard {
-            constructor(a, b, c, d) {
-                this.pos = createVector(
-                    (a.x + b.x + c.x + d.x) / 4,
-                    (a.y + b.y + c.y + d.y) / 4
-                );
-                this.vel = this.pos.copy().sub(createVector(width / 2, height / 2));
-                this.vel.normalize().mult(random(3, 9) * 2000 / height);
+class Shard {
+    constructor(a, b, c, d) {
+        this.pos = createVector(
+            (a.x + b.x + c.x + d.x) / 4,
+            (a.y + b.y + c.y + d.y) / 4
+        );
+        this.vel = this.pos.copy().sub(createVector(width / 2, height / 2));
+        this.vel.normalize().mult(random(3, 9) * 2000 / height);
 
-                this.angularVel = random(-0.2, 0.2);
+        this.angularVel = random(-0.2, 0.2);
 
-                this.points = [a, b, c, d];
-            }
+        this.points = [a, b, c, d];
+    }
 
-            getClipPath() {
-                return this.points.map(p => `${p.x}px ${p.y}px`).join(', ');
-            }
+    getClipPath() {
+        return this.points.map(p => `${p.x}px ${p.y}px`).join(', ');
+    }
 
-            draw(t) {
-                push();
-                beginShape();
-                translate(this.vel.x * t, this.vel.y * t);
-                translate(this.pos);
-                rotate(t * this.angularVel);
-                translate(-this.pos.x, -this.pos.y);
-                for (let p of this.points) {
-                    vertex(p.x, p.y);
-                }
-                endShape(CLOSE);
-                pop();
-            }
+    draw(t) {
+        push();
+        beginShape();
+        translate(this.vel.x * t, this.vel.y * t);
+        translate(this.pos);
+        rotate(t * this.angularVel);
+        translate(-this.pos.x, -this.pos.y);
+        for (let p of this.points) {
+            vertex(p.x, p.y);
         }
+        endShape(CLOSE);
+        pop();
+    }
+}
 
-        document.body.addEventListener('click', function () {
-            const audio = document.getElementById('aizenAudio');
-            const glassEffect = document.getElementById('glassEffect');
+// Glass effect and audio on body click
+document.body.addEventListener('click', function (event) {
+    if (event.target.classList.contains('profile-img')) {
+        // For profile image click, play the secondary audio and do glass effect
+        handleProfileImageClick();
+    } else {
+        // For other body clicks, play main audio and trigger glass effect
+        handleMainClick();
+    }
+});
 
-            document.body.style.pointerEvents = 'none';
+function handleProfileImageClick() {
+    // Check if the animation has already played for the current page visit
+    if (sessionStorage.getItem('shatterEffectPlayed')) {
+        console.log('Animation has already played for this session.');
+        return; // Prevent animation from running again if already played
+    }
 
-            audio.play();
-            glassEffect.classList.add('active');
+    const audio2 = document.getElementById('aizenAudio2');
+    const glassEffect = document.getElementById('glassEffect');
 
-            if (!animationStarted) {
-                anim = new AnimGlassBreak(millis());
-                animationStarted = true;
-                loop();
-            }
+    // Play the audio2
+    if (audio2) {
+        audio2.play();
+    } else {
+        console.error('Audio element not found.');
+    }
 
-            setTimeout(() => {
-                glassEffect.classList.remove('active');
-                document.getElementById('contentWrapper').style.clipPath = 'none';
-                setup(); // Reinitialize the canvas
-                document.body.style.pointerEvents = 'auto';
-                document.body.style.overflow = 'auto';
-            }, animationDuration);
-        });
+    // Start animation if not started yet
+    if (!animationStarted) {
+        anim = new AnimGlassBreak(millis());
+        animationStarted = true;
+        loop();
+    }
 
-        window.addEventListener('resize', () => {
-            resizeCanvas(windowWidth, windowHeight);
+    // Mark the animation as played for the current page visit
+    sessionStorage.setItem('shatterEffectPlayed', 'true');
+}
+
+function handleMainClick() {
+    // Check if the animation has already played for the current page visit
+    if (sessionStorage.getItem('shatterEffectPlayed')) {
+        console.log('Animation has already played for this session.');
+        return; // Prevent animation from running again if already played
+    }
+
+    const audio = document.getElementById('aizenAudio');
+    const glassEffect = document.getElementById('glassEffect');
+
+    console.log('Starting animation...');
+    document.body.style.pointerEvents = 'none';
+
+    if (audio) {
+        audio.play();
+    } else {
+        console.error('Audio element not found.');
+    }
+
+    glassEffect.classList.add('active');
+
+    if (!animationStarted) {
+        anim = new AnimGlassBreak(millis());
+        animationStarted = true;
+        loop();
+    }
+
+    // Mark the animation as played for the current page visit
+    sessionStorage.setItem('shatterEffectPlayed', 'true');
+
+    setTimeout(() => {
+        glassEffect.classList.remove('active');
+        document.getElementById('contentWrapper').style.clipPath = 'none';
+        document.querySelector('header').style.clipPath = 'none';
+        setup(); // Reinitialize the canvas
+        document.body.style.pointerEvents = 'auto';
+        document.body.style.overflow = 'auto';
+        console.log('Animation ended.');
+    }, animationDuration);
+}
+
+window.addEventListener('resize', () => {
+    resizeCanvas(windowWidth, windowHeight);
+});
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
         });
     </script>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to right, #121212, #121212);
-            color: #e0e0e0;
-            overflow: auto;
+       body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right, #121212, #121212);
+    color: #e0e0e0;
+    overflow: auto;
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding: 15px 0;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    background: #444;
+}
+
+nav ul li {
+    margin: 0;
+}
+
+nav ul li a {
+    color: #e0e0e0;
+    text-decoration: none;
+    padding: 10px 20px;
+    display: block;
+}
+
+nav ul li a:hover {
+    background: #555;
+    border-radius: 4px;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    overflow: auto;
+    position: relative;
+    z-index: 2;
+}
+
+.profile {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.profile-img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    margin-right: 20px;
+    border: 4px solid #f8c300;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-info ul {
+    padding: 0;
+}
+
+.profile-info ul li {
+    margin: 10px 0;
+}
+
+.status, .zanpakuto, .partners, .operations {
+    background: #262525;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+    color: #f8c300;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul li {
+    margin: 10px 0;
+}
+
+a {
+    color: #f8c300;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+}
+
+#glassEffect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: none;
+    pointer-events: none;
+    z-index: 3;
+    display: none;
+    animation: glassBreak 2s forwards;
+}
+
+@keyframes glassBreak {
+    0% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.2) rotate(30deg);
+        opacity: 0;
+    }
+}
+
+#glassEffect.active {
+    display: block;
+}
+
+/* Media Queries for Responsive Design */
+
+@media (max-width: 768px) {
+    .profile {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-img {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 10px;
+    }
+
+    nav ul {
+        flex-direction: column;
+    }
+
+    nav ul li a {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    nav ul li a {
+        font-size: 14px;
+    }
+}
+:root {
+            --primary-color: #f8c300;
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --section-bg: #1e1e1e;
         }
 
-        #contentWrapper {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
             position: relative;
             z-index: 2;
-            clip-path: none;
-            overflow: hidden;
         }
 
         header {
-            background: #333;
-            color: #fff;
+            background: rgba(51, 51, 51, 0.8);
+            backdrop-filter: blur(10px);
             padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        h1 {
             text-align: center;
-            position: relative;
-            z-index: 2;
+            color: var(--primary-color);
+            margin: 0;
+            padding: 20px 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         nav ul {
@@ -236,122 +552,240 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            background: #444;
+            flex-wrap: wrap;
         }
 
         nav ul li {
-            margin: 0;
+            margin: 5px;
         }
 
         nav ul li a {
-            color: #e0e0e0;
+            color: var(--text-color);
             text-decoration: none;
             padding: 10px 20px;
             display: block;
+            background: rgba(68, 68, 68, 0.6);
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.3s;
         }
 
         nav ul li a:hover {
-            background: #555;
-            border-radius: 4px;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: auto;
-            overflow: auto;
-            position: relative;
-            z-index: 2;
+            background: rgba(85, 85, 85, 0.8);
+            transform: translateY(-3px);
         }
 
         .profile {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            background: #1e1e1e;
+            background: var(--section-bg);
             padding: 20px;
             border-radius: 8px;
             margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .profile-img {
             border-radius: 50%;
-            width: 15vw;
-            height: auto;
+            width: 150px;
+            height: 150px;
             margin-right: 20px;
-            border: 4px solid #f8c300;
+            border: 4px solid var(--primary-color);
+            transition: transform 0.3s;
+            cursor: pointer;
         }
 
-        .profile-info,
-        .status,
-        .zanpakuto,
-        .partners,
-        .operations {
-            background: #262525;
+        .profile-img:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .status, .zanpakuto, .partners, .operations {
+            background: var(--section-bg);
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .status:hover, .zanpakuto:hover, .partners:hover, .operations:hover {
+            transform: translateY(-5px);
         }
 
         h2 {
-            color: #f8c300;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
         }
 
         ul {
             list-style: none;
             padding: 0;
-            margin: 0;
         }
 
         ul li {
             margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
         }
 
-        a {
-            color: #f8c300;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        canvas {
-            position: fixed;
-            top: 0;
+        ul li::before {
+            content: '•';
+            color: var(--primary-color);
+            position: absolute;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 1;
         }
 
-        #glassEffect {
+        #theme-toggle {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: none;
-            pointer-events: none;
-            z-index: 3;
-            display: none;
-            animation: glassBreak 2s forwards;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            border: none;
+            color: var(--bg-color);
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
         }
 
-        @keyframes glassBreak {
+        @keyframes pulse {
             0% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(248, 195, 0, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(248, 195, 0, 0);
             }
             100% {
-                transform: scale(1.2) rotate(30deg);
-                opacity: 0;
+                box-shadow: 0 0 0 0 rgba(248, 195, 0, 0);
             }
         }
 
-        #glassEffect.active {
-            display: block;
+        .pulse {
+            animation: pulse 2s infinite;
         }
+
+        @media (max-width: 768px) {
+            .profile {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-img {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav ul li {
+                margin: 5px 0;
+            }
+        }
+
+  
+        /* .quote-container {
+            font-style: italic;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(248, 195, 0, 0.1);
+            border-radius: 8px;
+        } */
+        .timeline {
+    position: relative;
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 20px 0;
+}
+
+.timeline::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    background-color: var(--primary-color);
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -2px;
+}
+
+.timeline-item {
+    padding: 10px 40px;
+    position: relative;
+    background-color: inherit;
+    width: 50%;
+    box-sizing: border-box;
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    right: -10px;
+    background-color: var(--bg-color);
+    border: 4px solid var(--primary-color);
+    top: 15px;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.left {
+    left: 0;
+}
+
+.right {
+    left: 50%;
+}
+
+.right::after {
+    left: -10px;
+}
+
+.timeline-content {
+    padding: 20px;
+    background-color: var(--section-bg);
+    position: relative;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.timeline-content:hover {
+    transform: scale(1.03);
+}
+
+.timeline-content h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+@media screen and (max-width: 600px) {
+    .timeline::after {
+        left: 31px;
+    }
+    
+    .timeline-item {
+        width: 100%;
+        padding-left: 70px;
+        padding-right: 25px;
+    }
+    
+    .timeline-item::after {
+        left: 21px;
+    }
+    
+    .right {
+        left: 0%;
+    }
+}
     </style>
 </body>
 </html>

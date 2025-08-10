@@ -1,791 +1,565 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sōsuke Aizen - Former Captain</title>
-    <!-- <link rel="stylesheet" href="styles.css"> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sōsuke Aizen — Illusion vs Reality</title>
+
+<!-- p5.js for particle & shard effects -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+
+<style>
+  :root{
+    --gold: #f8c300;
+    --bg-1: #07070a;
+    --bg-2: #111018;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(248,195,0,0.12);
+    --muted: #dcdcdc;
+    --accent: #cfa12b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
+  /* Background layers */
+  .bg-layer{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .mist{position:absolute;filter:blur(60px);opacity:0.18;mix-blend-mode:screen}
+  .mist.m1{width:420px;height:420px;background:radial-gradient(circle,#39294f55,transparent 60%);left:3%;top:8%;}
+  .mist.m2{width:520px;height:520px;background:radial-gradient(circle,#4b1f3b55,transparent 60%);right:2%;bottom:10%;}
+  .mist.m3{width:300px;height:300px;background:radial-gradient(circle,#1d315055,transparent 60%);left:25%;bottom:15%;}
+  /* container */
+  .wrap{position:relative;z-index:20;max-width:1200px;margin:0 auto;padding:26px;}
+  header{position:sticky;top:10px;backdrop-filter:blur(6px) saturate(120%);background:linear-gradient(180deg, rgba(20,20,20,0.25), rgba(8,8,8,0.15));border-radius:12px;padding:14px;border:1px solid var(--glass-border);display:flex;align-items:center;gap:18px}
+  .logo{display:flex;align-items:center;gap:12px}
+  .avatar{
+    width:76px;height:76px;border-radius:50%;overflow:hidden;border:3px solid var(--gold);flex-shrink:0;background:linear-gradient(180deg,#0b0b0b,#1a1a1a);display:grid;place-items:center;cursor:pointer;
+    transition:transform .25s ease, box-shadow .25s;
+  }
+  .avatar:hover{transform:scale(1.03);box-shadow:0 6px 30px rgba(248,195,0,0.12)}
+  .title{color:var(--gold);font-family:Cinzel,serif;font-size:1.35rem;letter-spacing:0.6px}
+  nav{margin-left:auto}
+  nav a{color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid transparent;transition:all .18s}
+  nav a:hover{color:var(--gold);border-color:var(--glass-border);transform:translateY(-3px)}
+  /* hero */
+  .hero{display:grid;grid-template-columns:1fr 480px;gap:22px;align-items:center;margin-top:28px}
+  .hero-card{padding:28px;border-radius:14px;background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,0.6)}
+  .hero-intro{color:var(--muted)}
+  .hero-intro h1{margin:0;color:var(--gold);font-family:Cinzel,serif;font-size:2.2rem}
+  .hero-intro p{margin-top:10px;opacity:.95}
+  .hero-actions{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn{background:var(--gold);color:#0c0c0c;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:600;box-shadow:0 6px 18px rgba(248,195,0,0.08)}
+  .ghost{background:transparent;color:var(--muted);border:1px solid var(--glass-border)}
+  /* profile card (right) */
+  .profile-card{position:relative;padding:28px;border-radius:16px;overflow:visible}
+  .profile-image{width:220px;height:220px;border-radius:50%;margin:auto;border:4px solid var(--gold);display:block;cursor:pointer}
+  .image-overlay{position:absolute;left:50%;transform:translateX(-50%);bottom:26px;width:220px;height:28px;border-radius:20px;background:radial-gradient(ellipse at center, rgba(248,195,0,0.14),transparent 60%);pointer-events:none}
+  .profile-info{margin-top:18px;color:var(--muted);display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .info-item{padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid var(--glass-border)}
+  .info-label{font-size:12px;color:#cfcfcf;opacity:.8}
+  .info-value{font-weight:600;color:#fff}
+  /* sections */
+  section{margin-top:26px;padding:20px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--glass-border);backdrop-filter:blur(6px)}
+  .section-title{font-family:Cinzel,serif;color:var(--gold);font-size:1.2rem;margin-bottom:12px}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .card{flex:1;min-width:220px;padding:14px;border-radius:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.02)}
+  /* timeline */
+  .timeline{position:relative;padding:12px}
+  .t-item{padding:12px;border-radius:10px;margin:12px 0;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));display:flex;gap:12px;align-items:center;transition:transform .35s,box-shadow .35s}
+  .t-item:hover{transform:translateY(-6px);box-shadow:0 18px 50px rgba(0,0,0,0.5)}
+  .t-dot{width:12px;height:12px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px rgba(248,195,0,0.2)}
+  .t-year{font-family:Cinzel,serif;color:var(--gold);min-width:120px}
+  /* illusion flicker */
+  .illusion{
+    display:inline-block;transition:filter .25s ease;animation:flicker 6s infinite;
+  }
+  @keyframes flicker{
+    0%,85%,100%{filter:none}
+    40%{filter:grayscale(100%) brightness(1.6)}
+    42%{filter:none}
+    46%{filter:contrast(200%) hue-rotate(30deg)}
+  }
+  /* stage states */
+  .stage-true{border-color:rgba(134, 0, 160, 0.18);box-shadow:0 12px 40px rgba(134,0,160,0.06)}
+  .stage-illusion .hero-card{transform:translateY(-6px)}
+  .stage-truth{background:linear-gradient(180deg,#07030a,#0a0012);}
+  /* quote whispers */
+  .quote{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:rgba(0,0,0,0.45);padding:10px 16px;border-radius:22px;color:#e9e9e9;opacity:0;pointer-events:none;border:1px solid rgba(255,255,255,0.02);backdrop-filter:blur(6px);z-index:40;transition:opacity .5s}
+  .quote.show{opacity:1}
+  /* small screens */
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr;gap:18px}
+    .profile-image{width:160px;height:160px}
+    .avatar{width:64px;height:64px}
+  }
+</style>
 </head>
 <body>
-   
-    <main class="container">
-        <header>
-            <nav>
-                <ul>
-                    <li><a href="#profile">Profile</a></li>
-                    <li><a href="#status">Status</a></li>
-                    <li><a href="#zanpakuto">Zanpakutō</a></li>
-                    <li><a href="#partners">Partners</a></li>
-                    <li><a href="#operations">Operations</a></li>
-                </ul>
-            </nav>
-            <h1>Sōsuke Aizen - Former Captain of Gotei 13</h1>
-        </header>
-    
-        <div id="contentWrapper">
-            <section id="profile" class="profile">
-                <a href="index1.html">
-                    <img src="Aizen sosuke _ pfp _ wallpaper _ icon.jpeg" alt="Sōsuke Aizen Profile Picture" class="profile-img">
-                </a>
-                <div class="profile-info">
-                    <h2>Personal Information</h2>
-                    <ul>
-                        <li><strong>Race:</strong> Soul</li>
-                        <li><strong>Birthday:</strong> May 29</li>
-                        <li><strong>Gender:</strong> Male</li>
-                        <li><strong>Height:</strong> 186 cm (6'1")</li>
-                        <li><strong>Weight:</strong> 74 kg (163 lbs)</li>
-                    </ul>
-                </div>
-            </section>
 
-            <section id="status" class="status">
-                <h2>Professional Status</h2>
-                <p><strong>Affiliation:</strong> Himself</p>
-                <p><strong>Previous Affiliation:</strong> Gotei 13, Soul Society, Arrancar Army</p>
-                <p><strong>Profession:</strong> Shinigami</p>
-                <p><strong>Position:</strong> None</p>
-                <p><strong>Previous Positions:</strong></p>
-                <ul>
-                    <li>Leader of the Arrancar Army</li>
-                    <li>Captain of the 5th Division</li>
-                    <li>Lieutenant of the 5th Division</li>
-                    <li>Instructor at the Shin'ō Academy</li>
-                </ul>
-            </section>
+<!-- Background layers -->
+<div class="bg-layer">
+  <div class="mist m1"></div>
+  <div class="mist m2"></div>
+  <div class="mist m3"></div>
+  <!-- p5 canvas will attach inside this -->
+  <div id="p5-root" style="position:absolute;inset:0;z-index:5;pointer-events:none"></div>
+</div>
 
-            <section id="zanpakuto" class="zanpakuto">
-                <h2>Zanpakutō</h2>
-                <p><strong>Shikai:</strong> Kyōka Suigetsu</p>
-            </section>
-
-            <section id="partners" class="partners">
-                <h2>Previous Partners</h2>
-                <ul>
-                    <li>Gin Ichimaru</li>
-                    <li>Kaname Tōsen</li>
-                    <li>Shinji Hirako</li>
-                    <li>Momo Hinamori</li>
-                </ul>
-            </section>
-
-            <section id="operations" class="operations">
-                <h2>Base of Operations</h2>
-                <p>Muken, Soul Society</p>
-            </section>
-        </div>
-    </main>
-
-    <audio id="aizenAudio" src="Shatter, Kyoka Suigetsu! [JY_g2Fk0qMM].mp3" preload="auto"></audio>
-    <audio id="aizenAudio2" src="yokuso_soul_society.mp3" preload="auto"></audio>
-
-    <div id="glassEffect"></div>
-    <div class="container">
-        <section id="timeline" class="timeline">
-            <h2>Key Events in Sōsuke Aizen's Life</h2>
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>1850s</h3>
-                    <p>Aizen graduates from Shin'ō Academy and joins the Gotei 13.</p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <h3>c. 1900</h3>
-                    <p>Becomes Lieutenant of the 5th Division under Captain Shinji Hirako.</p>
-                </div>
-            </div>
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>c. 1900-1908</h3>
-                    <p>Conducts Hollowfication experiments, affecting several Shinigami including the Visored.</p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <h3>c. 1908</h3>
-                    <p>Promoted to Captain of the 5th Division after Shinji Hirako's exile.</p>
-                </div>
-            </div>
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>2001</h3>
-                    <p>Fakes his death and reveals his true nature, leaving Soul Society with Gin Ichimaru and Kaname Tōsen.</p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <h3>2003</h3>
-                    <p>Battles in Fake Karakura Town against the Gotei 13 and Visored.</p>
-                </div>
-            </div>
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>2003</h3>
-                    <p>Defeated by Ichigo Kurosaki and sentenced to 20,000 years in Muken.</p>
-                </div>
-            </div>
-        </section>
+<div class="wrap" id="pageRoot">
+  <header id="siteHeader">
+    <div class="logo">
+      <div class="avatar" id="avatarBtn" title="Click to reveal the illusion">
+        <!-- SVG stylized face placeholder (you can replace with an <img src="...">) -->
+        <svg viewBox="0 0 100 100" width="76" height="76" aria-hidden="true">
+          <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#111"/><stop offset="1" stop-color="#201"/></linearGradient></defs>
+          <circle cx="50" cy="50" r="46" fill="url(#g)"></circle>
+          <path d="M30 45c8-6 32-6 40 0" stroke="#f7d066" stroke-width="3" stroke-linecap="round" fill="none" opacity=".95"/>
+          <rect x="22" y="62" width="56" height="8" rx="4" fill="#000" opacity=".12"/>
+        </svg>
+      </div>
+      <div>
+        <div class="title">Sōsuke Aizen</div>
+        <div style="font-size:12px;color:var(--muted)">Former Captain — The Illusionist</div>
+      </div>
     </div>
-    <script>
-let anim;
-let animationStarted = false;
-let animationDuration = 1500; // Duration of the animation in milliseconds
 
-function setup() {
-    createCanvas(windowWidth, windowHeight).style('position', 'fixed').style('top', '0').style('left', '0').style('pointer-events', 'none');
-    noLoop(); // Prevent continuous drawing
-}
+    <nav>
+      <a href="#profile">Profile</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#zanpakuto">Zanpakutō</a>
+      <a href="#partners">Partners</a>
+    </nav>
+  </header>
 
-function draw() {
-    if (anim) {
-        background(0);
-        anim.draw(millis());
-        if (millis() - anim.t0 > animationDuration) {
-            anim = null; // Stop animation after it's finished
-            noLoop(); // Stop the draw loop
-            document.getElementById('contentWrapper').style.clipPath = 'none'; // Reset clip-path
-            document.querySelector('header').style.clipPath = 'none'; // Reset header clip-path
-            animationStarted = false; // Reset animation state
-        }
+  <!-- Hero -->
+  <div class="hero" id="hero">
+    <div class="hero-card" id="heroCard">
+      <div class="hero-intro">
+        <h1 class="illusion">Kyōka Suigetsu — Illusion</h1>
+        <p>In the beginning, everything appears as it should. A gentle smile, a composed captain. But perception is the weapon — and truth is the consequence.</p>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn" id="btnReveal">Force the Reveal</button>
+        <button class="btn ghost" id="btnListen">Toggle Whispers</button>
+      </div>
+
+      <div style="margin-top:18px;color:var(--muted);font-size:0.95rem">
+        <strong>Stage:</strong> <span id="stageLabel">Calm</span>
+      </div>
+    </div>
+
+    <div class="profile-card" id="profileCard">
+      <!-- Replace inner <svg> with your image if desired -->
+      <div style="text-align:center">
+        <img src="" alt="Aizen Portrait" id="pfp" class="profile-image" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22><rect width=%22200%22 height=%22200%22 rx=%2220%22 fill=%22%23070b10%22/><text x=%2250%22 y=%22110%22 font-size=%2234%22 font-family=%22Cinzel,serif%22 fill=%22%23f8c300%22>AIZEN</text></svg>'" />
+        <div class="image-overlay"></div>
+      </div>
+
+      <div class="profile-info" style="margin-top:16px">
+        <div class="info-item">
+          <div class="info-label">Race</div>
+          <div class="info-value">Soul</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Birthday</div>
+          <div class="info-value">May 29</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Height</div>
+          <div class="info-value">186 cm</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Affiliation</div>
+          <div class="info-value">Himself / Former Gotei 13</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Section -->
+  <section id="profile">
+    <div class="section-title">Profile</div>
+    <div class="row reveal">
+      <div class="card">
+        <h3>Overview</h3>
+        <p class="illusion">Charismatic, composed, a master of perception. Aizen's methods are subtle — he reshapes what you believe you saw.</p>
+      </div>
+      <div class="card">
+        <h3>Positions</h3>
+        <ul style="margin:8px 0 0 18px;color:var(--muted)">
+          <li>Captain, 5th Division</li>
+          <li>Leader of Arrancar Army</li>
+          <li>Shin'ō Academy Instructor</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Zanpakuto -->
+  <section id="zanpakuto">
+    <div class="section-title">Zanpakutō</div>
+    <div class="row">
+      <div class="card">
+        <h3>Kyōka Suigetsu</h3>
+        <p class="illusion">Shikai — Complete hypnosis through perfect control of the senses. The blade doesn't cut the body; it cuts belief.</p>
+        <div style="margin-top:10px">
+          <span class="info-label">Ability</span>
+          <div style="margin-top:6px"><span style="padding:6px 10px;border-radius:18px;background:rgba(248,195,0,0.12);color:var(--gold);font-weight:600">Perceptual Domination</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Special</h3>
+        <p>Illusion layering, staged reveals, delayed effects — Kyōka Suigetsu is theatre weaponized.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partners -->
+  <section id="partners">
+    <div class="section-title">Partners & Associates</div>
+    <div class="row">
+      <div class="card"><strong>Gin Ichimaru</strong><div style="color:var(--muted);margin-top:6px">Close ally</div></div>
+      <div class="card"><strong>Kaname Tōsen</strong><div style="color:var(--muted);margin-top:6px">Ally</div></div>
+      <div class="card"><strong>Momo Hinamori</strong><div style="color:var(--muted);margin-top:6px">Tragic link</div></div>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section id="timeline">
+    <div class="section-title">Timeline</div>
+    <div class="timeline" id="timelineWrap">
+      <div class="t-item" data-year="1850s"><div class="t-dot"></div><div class="t-year">1850s</div><div><strong>Graduates Shin'ō Academy.</strong><div style="color:var(--muted)">A composed student with subtle ambition.</div></div></div>
+      <div class="t-item" data-year="c.1900"><div class="t-dot"></div><div class="t-year">c.1900</div><div><strong>Becomes Lieutenant.</strong><div style="color:var(--muted)">Under Shinji Hirako — experiments begin.</div></div></div>
+      <div class="t-item" data-year="2001"><div class="t-dot"></div><div class="t-year">2001</div><div><strong>Reveals true nature.</strong><div style="color:var(--muted)">Leaves Soul Society with two allies.</div></div></div>
+      <div class="t-item" data-year="2003"><div class="t-dot"></div><div class="t-year">2003</div><div><strong>Fake Karakura War.</strong><div style="color:var(--muted)">Defeated and sentenced to Muken.</div></div></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Floating quote whisper -->
+<div class="quote" id="quoteBox">"Kneel, and this world will still appear as it always did..."</div>
+
+<!-- Audio (replace src with your mp3s if you have them; keep crossorigin safe for local files) -->
+<audio id="shatterAudio" src="" preload="auto"></audio>
+<audio id="whisperAudio" src="" preload="auto" loop></audio>
+
+<script>
+/* -------------------------
+   Core interactive logic
+   ------------------------- */
+(() => {
+  const root = document.getElementById('pageRoot');
+  const heroCard = document.getElementById('heroCard');
+  const btnReveal = document.getElementById('btnReveal');
+  const btnListen = document.getElementById('btnListen');
+  const avatarBtn = document.getElementById('avatarBtn');
+  const stageLabel = document.getElementById('stageLabel');
+  const quoteBox = document.getElementById('quoteBox');
+  const pfp = document.getElementById('pfp');
+
+  // Stage: "calm", "illusion", "shattered"/"truth"
+  let stage = 'calm';
+  let whispers = false;
+
+  // Sample quotes to cycle
+  const quotes = [
+    "Perception precedes reality.",
+    "You have been looking at what I want you to see.",
+    "Truth is a slow-burning thing.",
+    "The real difference between us? I think faster.",
+    "Everything you saw was the prelude."
+  ];
+
+  // Update UI function
+  function updateStage(s){
+    stage = s;
+    document.body.classList.remove('stage-illusion','stage-truth');
+    if(s === 'calm'){
+      stageLabel.textContent = 'Calm';
+      heroCard.classList.remove('stage-true');
+    } else if(s === 'illusion'){
+      stageLabel.textContent = 'Illusion (Kyōka)';
+      document.body.classList.add('stage-illusion');
+      heroCard.classList.add('stage-true');
+      showQuoteRandom();
+    } else if(s === 'truth'){
+      stageLabel.textContent = 'Truth Revealed';
+      document.body.classList.add('stage-truth');
+      // intensify canvas effects
+      startShatter(true);
+      showQuote("This is the truth.");
     }
-}
+  }
 
-class AnimGlassBreak {
-    constructor(t0) {
-        this.t0 = t0;
-        this.shards = [];
+  // Quote controls
+  function showQuote(txt){
+    quoteBox.textContent = txt;
+    quoteBox.classList.add('show');
+    setTimeout(()=>quoteBox.classList.remove('show'), 3800);
+  }
+  function showQuoteRandom(){
+    showQuote(quotes[Math.floor(Math.random()*quotes.length)]);
+  }
 
-        // Divide the window into shards
-        this.divide(
-            createVector(0, 0),
-            createVector(width, 0),
-            createVector(width, height),
-            createVector(0, height)
-        );
+  // Toggle whisper audio (if you add a file, set src)
+  btnListen.addEventListener('click', () => {
+    whispers = !whispers;
+    btnListen.textContent = whispers ? 'Stop Whispers' : 'Toggle Whispers';
+    const w = document.getElementById('whisperAudio');
+    if(!w.src) {
+      // no audio provided — just show a whisper text instead
+      if(whispers) showQuoteRandom();
+      return;
     }
+    if(whispers) w.play(); else w.pause();
+  });
 
-    divide(a, b, c, d, i = 0) {
-        const maxDivisions = 8;
-        if (i < maxDivisions) {
-            const range = map(i, 0, maxDivisions, 0.2, 0.45);
-            const low = 0.5 - range;
-            const high = 0.5 + range;
-            let p0 = p5.Vector.lerp(a, b, random(low, high));
-            let p1 = p5.Vector.lerp(c, d, random(low, high));
-            this.divide(p0, p1, d, a, i + 1);
-            this.divide(b, c, p1, p0, i + 1);
-        } else {
-            this.shards.push(new Shard(a, b, c, d));
-        }
+  // Avatar quick illusion flicker
+  avatarBtn.addEventListener('click', e=>{
+    if(stage === 'calm') {
+      updateStage('illusion');
+      setTimeout(()=>updateStage('calm'), 2800);
+    } else if(stage === 'illusion'){
+      updateStage('truth');
     }
+  });
 
-    draw(t) {
-        t = t - this.t0;
-        t = t / animationDuration * 60;
-        t = max(0, t - 2);
-        for (let shard of this.shards) {
-            shard.draw(t);
-            const clipPath = `polygon(${shard.getClipPath()})`;
-            document.getElementById('contentWrapper').style.clipPath = clipPath;
-            document.querySelector('header').style.clipPath = clipPath;
-        }
+  // Force reveal button
+  btnReveal.addEventListener('click', () => {
+    if(stage === 'truth') return;
+    // stage flow: calm -> illusion -> truth
+    if(stage === 'calm'){
+      updateStage('illusion');
+      setTimeout(()=>updateStage('truth'), 2200);
+    } else if(stage === 'illusion'){
+      updateStage('truth');
     }
-}
+  });
 
-class Shard {
-    constructor(a, b, c, d) {
-        this.pos = createVector(
-            (a.x + b.x + c.x + d.x) / 4,
-            (a.y + b.y + c.y + d.y) / 4
-        );
-        this.vel = this.pos.copy().sub(createVector(width / 2, height / 2));
-        this.vel.normalize().mult(random(3, 9) * 2000 / height);
+  // subtle scroll reveal of .reveal elements
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(ent=>{
+      if(ent.isIntersecting) ent.target.classList.add('visible');
+    });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>{
+    el.style.opacity = 0; el.style.transform = 'translateY(26px)'; el.style.transition = 'all .9s cubic-bezier(.2,.9,.2,1)';
+    io.observe(el);
+    el.addEventListener('transitionend', ()=>{});
+  });
 
-        this.angularVel = random(-0.2, 0.2);
+  // When reveal becomes visible, animate
+  document.addEventListener('scroll', ()=>{
+    document.querySelectorAll('.reveal').forEach(el=>{
+      const r = el.getBoundingClientRect();
+      if(r.top < window.innerHeight*0.85){
+        el.style.opacity = 1; el.style.transform = 'translateY(0)';
+      }
+    });
+  });
 
-        this.points = [a, b, c, d];
-    }
+  // small handler to rotate profile image between forms (illusion flicker)
+  let pfpState = 0;
+  pfp.addEventListener('mouseenter', ()=>{
+    // if an actual image is provided, could swap src to alternate; here we just animate
+    pfp.style.transform = 'scale(1.04) rotate(-2deg)';
+    setTimeout(()=>pfp.style.transform = '', 900);
+  });
 
-    getClipPath() {
-        return this.points.map(p => `${p.x}px ${p.y}px`).join(', ');
-    }
+  // initial stage
+  updateStage('calm');
 
-    draw(t) {
-        push();
-        beginShape();
-        translate(this.vel.x * t, this.vel.y * t);
-        translate(this.pos);
-        rotate(t * this.angularVel);
-        translate(-this.pos.x, -this.pos.y);
-        for (let p of this.points) {
-            vertex(p.x, p.y);
-        }
-        endShape(CLOSE);
-        pop();
-    }
-}
+  // allow keyboard 'r' to trigger reveal for fun
+  window.addEventListener('keydown', e=>{
+    if(e.key.toLowerCase() === 'r') btnReveal.click();
+  });
 
-// Glass effect and audio on body click
-document.body.addEventListener('click', function (event) {
-    if (event.target.classList.contains('profile-img')) {
-        // For profile image click, play the secondary audio and do glass effect
-        handleProfileImageClick();
-    } else {
-        // For other body clicks, play main audio and trigger glass effect
-        handleMainClick();
-    }
-});
+  // load user assets if present (replace with your file paths)
+  // Example: set pfp.src = 'Aizen_sosuke_pfp.jpg' if you have one
+  // Example audio: document.getElementById('shatterAudio').src = 'Shatter.mp3'
+})();
 
-function handleProfileImageClick() {
-    // Check if the animation has already played for the current page visit
-    if (sessionStorage.getItem('shatterEffectPlayed')) {
-        console.log('Animation has already played for this session.');
-        return; // Prevent animation from running again if already played
-    }
+/* -------------------------
+   p5.js sketch
+   - particles (kyoka shards drifting)
+   - shatter routine: micro cracks -> full shards + weak refraction
+   ------------------------- */
 
-    const audio2 = document.getElementById('aizenAudio2');
-    const glassEffect = document.getElementById('glassEffect');
+let sketch = function(p) {
+  let particles = [];
+  let shards = [];
+  let shatterActive = false;
+  let microCrack = false;
+  let seed = Math.random()*9999;
+  p.setup = function(){
+    let c = p.createCanvas(p.windowWidth, p.windowHeight);
+    c.parent('p5-root');
+    p.noStroke();
+    p.angleMode(p.DEGREES);
+    // init particles
+    for(let i=0;i<160;i++) particles.push(makeParticle());
+  };
+  function makeParticle(){
+    return {
+      x: Math.random()*p.width,
+      y: Math.random()*p.height,
+      r: 1+Math.random()*3,
+      vx: (Math.random()-0.5)*0.3,
+      vy: (Math.random()-0.5)*0.3,
+      alpha: 0.02+Math.random()*0.18,
+      col: (Math.random()>0.8) ? [200,160,40] : [120,80,140]
+    };
+  }
+  p.draw = function(){
+    p.clear();
+    // soft gradient overlay to tint
+    p.push();
+    p.fill(8,6,12, 140);
+    p.rect(0,0,p.width,p.height);
+    p.pop();
 
-    // Play the audio2
-    if (audio2) {
-        audio2.play();
-    } else {
-        console.error('Audio element not found.');
-    }
-
-    // Start animation if not started yet
-    if (!animationStarted) {
-        anim = new AnimGlassBreak(millis());
-        animationStarted = true;
-        loop();
-    }
-
-    // Mark the animation as played for the current page visit
-    sessionStorage.setItem('shatterEffectPlayed', 'true');
-}
-
-function handleMainClick() {
-    // Check if the animation has already played for the current page visit
-    if (sessionStorage.getItem('shatterEffectPlayed')) {
-        console.log('Animation has already played for this session.');
-        return; // Prevent animation from running again if already played
-    }
-
-    const audio = document.getElementById('aizenAudio');
-    const glassEffect = document.getElementById('glassEffect');
-
-    console.log('Starting animation...');
-    document.body.style.pointerEvents = 'none';
-
-    if (audio) {
-        audio.play();
-    } else {
-        console.error('Audio element not found.');
-    }
-
-    glassEffect.classList.add('active');
-
-    if (!animationStarted) {
-        anim = new AnimGlassBreak(millis());
-        animationStarted = true;
-        loop();
-    }
-
-    // Mark the animation as played for the current page visit
-    sessionStorage.setItem('shatterEffectPlayed', 'true');
-
-    setTimeout(() => {
-        glassEffect.classList.remove('active');
-        document.getElementById('contentWrapper').style.clipPath = 'none';
-        document.querySelector('header').style.clipPath = 'none';
-        setup(); // Reinitialize the canvas
-        document.body.style.pointerEvents = 'auto';
-        document.body.style.overflow = 'auto';
-        console.log('Animation ended.');
-    }, animationDuration);
-}
-
-window.addEventListener('resize', () => {
-    resizeCanvas(windowWidth, windowHeight);
-});
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-    </script>
-
-    <style>
-       body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(to right, #121212, #121212);
-    color: #e0e0e0;
-    overflow: auto;
-}
-
-header {
-    background: #333;
-    color: #fff;
-    padding: 15px 0;
-    text-align: center;
-    position: relative;
-    z-index: 2;
-}
-
-nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    background: #444;
-}
-
-nav ul li {
-    margin: 0;
-}
-
-nav ul li a {
-    color: #e0e0e0;
-    text-decoration: none;
-    padding: 10px 20px;
-    display: block;
-}
-
-nav ul li a:hover {
-    background: #555;
-    border-radius: 4px;
-}
-
-.container {
-    width: 90%;
-    max-width: 1200px;
-    margin: auto;
-    overflow: auto;
-    position: relative;
-    z-index: 2;
-}
-
-.profile {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    background: #1e1e1e;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-.profile-img {
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-    margin-right: 20px;
-    border: 4px solid #f8c300;
-}
-
-.profile-info {
-    flex: 1;
-}
-
-.profile-info ul {
-    padding: 0;
-}
-
-.profile-info ul li {
-    margin: 10px 0;
-}
-
-.status, .zanpakuto, .partners, .operations {
-    background: #262525;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-}
-
-h2 {
-    color: #f8c300;
-}
-
-ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-ul li {
-    margin: 10px 0;
-}
-
-a {
-    color: #f8c300;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 1;
-}
-
-#glassEffect {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: none;
-    pointer-events: none;
-    z-index: 3;
-    display: none;
-    animation: glassBreak 2s forwards;
-}
-
-@keyframes glassBreak {
-    0% {
-        transform: scale(1) rotate(0deg);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1.2) rotate(30deg);
-        opacity: 0;
-    }
-}
-
-#glassEffect.active {
-    display: block;
-}
-
-/* Media Queries for Responsive Design */
-
-@media (max-width: 768px) {
-    .profile {
-        flex-direction: column;
-        text-align: center;
+    // draw particles (kyōka shards / spirit motes)
+    for(let m of particles){
+      m.x += m.vx + Math.sin((p.millis()+seed)/4000 + m.r)*0.05;
+      m.y += m.vy + Math.cos((p.millis()+seed)/3500 + m.r)*0.05;
+      if(m.x < -20) m.x = p.width + 20;
+      if(m.x > p.width + 20) m.x = -20;
+      if(m.y < -20) m.y = p.height + 20;
+      if(m.y > p.height + 20) m.y = -20;
+      p.push();
+      p.fill(m.col[0], m.col[1], m.col[2], m.alpha*255);
+      p.circle(m.x, m.y, m.r*2);
+      p.pop();
     }
 
-    .profile-img {
-        width: 80px;
-        height: 80px;
-        margin-bottom: 10px;
+    // micro-crack effect: draw faint lines across screen
+    if(microCrack){
+      p.push();
+      p.strokeWeight(1.2);
+      for(let i=0;i<6;i++){
+        p.stroke(255,220,120, p.map(Math.sin((p.millis()/300)+i), -1,1,0,90));
+        let y = (i+1)*(p.height/7) + Math.sin((p.millis()/450)+i)*30;
+        p.line(0, y, p.width, y + Math.cos((p.millis()/600)+i)*140);
+      }
+      p.pop();
     }
 
-    nav ul {
-        flex-direction: column;
+    // draw shards if shatterActive
+    for(let s of shards){
+      s.update();
+      s.draw();
     }
 
-    nav ul li a {
-        padding: 10px;
+    // slowly fade out finished shards
+    shards = shards.filter(s => !s.isDone);
+
+  };
+
+  function Shard(x,y,w,h,angle){
+    this.x = x; this.y = y; this.w = w; this.h = h; this.angle = angle;
+    this.vx = (x - p.width/2)/p.width * (2 + Math.random()*6);
+    this.vy = (y - p.height/2)/p.height * (2 + Math.random()*6) - 1.2;
+    this.spin = (Math.random()-0.5)*3;
+    this.alpha = 1;
+    this.isDone = false;
+    this.update = function(){
+      this.x += this.vx; this.y += this.vy;
+      this.angle += this.spin;
+      this.vy += 0.02;
+      this.alpha -= 0.004;
+      if(this.alpha <= 0) this.isDone = true;
+    };
+    this.draw = function(){
+      p.push();
+      p.translate(this.x, this.y);
+      p.rotate(this.angle);
+      p.fill(30,20,30, 120*this.alpha);
+      p.noStroke();
+      p.beginShape();
+      p.vertex(-this.w/2, -this.h/2);
+      p.vertex(this.w/2, -this.h/2);
+      p.vertex(this.w/2, this.h/2);
+      p.vertex(-this.w/2, this.h/2);
+      p.endShape();
+      p.pop();
+    };
+  }
+
+  // Public: start micro-crack
+  p.startMicroCrack = function(){
+    microCrack = true;
+    setTimeout(()=> microCrack = false, 1800);
+  };
+
+  // Public: full shatter
+  p.runShatter = function(intensity = 30){
+    // create shards
+    for(let i=0;i<intensity;i++){
+      let x = Math.random()*p.width;
+      let y = Math.random()*p.height;
+      let w = 20 + Math.random()*80;
+      let h = 8 + Math.random()*80;
+      shards.push(new Shard(x,y,w,h,Math.random()*360));
     }
-}
-
-@media (max-width: 480px) {
-    .profile-img {
-        width: 60px;
-        height: 60px;
+    // small camera shake by shifting canvas parent
+    let parent = document.getElementById('p5-root');
+    if(parent){
+      parent.style.transition = 'transform .5s ease-out';
+      parent.style.transform = 'translate('+ (Math.random()*12-6) +'px,'+ (Math.random()*10-5) +'px)';
+      setTimeout(()=> parent.style.transform = '', 500);
     }
+  };
 
-    nav ul li a {
-        font-size: 14px;
+  p.windowResized = function(){
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+  };
+};
+
+let p5instance = new p5(sketch);
+
+/* -------------------------
+   Shatter orchestration between UI and p5 sketch
+   ------------------------- */
+(function(){
+  const btn = document.getElementById('btnReveal');
+  const avatar = document.getElementById('avatarBtn');
+  const shatterAudio = document.getElementById('shatterAudio');
+
+  // attach quick micro-crack when user scrolls near timeline
+  const timeline = document.getElementById('timeline');
+  if(timeline){
+    window.addEventListener('scroll', ()=>{
+      const r = timeline.getBoundingClientRect();
+      if(r.top < window.innerHeight*0.75 && r.top > -window.innerHeight*0.25){
+        // trigger micro crack
+        p5instance.startMicroCrack();
+      }
+    });
+  }
+
+  // Trigger full shatter (also used by stage change)
+  window.startShatter = function(force){
+    // Play audio if provided (silently degrade if not)
+    if(shatterAudio && shatterAudio.src){
+      try{ shatterAudio.currentTime = 0; shatterAudio.play().catch(()=>{}); } catch(e){}
     }
-}
-:root {
-            --primary-color: #f8c300;
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --section-bg: #1e1e1e;
-        }
+    // run p5 shatter
+    p5instance.runShatter(force ? 60 : 28);
+  };
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
+  // Avatar quick double-click triggers a dramatic shatter
+  avatar.addEventListener('dblclick', ()=>{
+    window.startShatter(true);
+  });
 
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: auto;
-            position: relative;
-            z-index: 2;
-        }
+  // Optional: map 'S' key to shatter
+  window.addEventListener('keydown', (e)=>{
+    if(e.key.toLowerCase() === 's') window.startShatter(true);
+  });
 
-        header {
-            background: rgba(51, 51, 51, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+})();
+</script>
 
-        h1 {
-            text-align: center;
-            color: var(--primary-color);
-            margin: 0;
-            padding: 20px 0;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        nav ul li {
-            margin: 5px;
-        }
-
-        nav ul li a {
-            color: var(--text-color);
-            text-decoration: none;
-            padding: 10px 20px;
-            display: block;
-            background: rgba(68, 68, 68, 0.6);
-            border-radius: 5px;
-            transition: background 0.3s, transform 0.3s;
-        }
-
-        nav ul li a:hover {
-            background: rgba(85, 85, 85, 0.8);
-            transform: translateY(-3px);
-        }
-
-        .profile {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            background: var(--section-bg);
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-img {
-            border-radius: 50%;
-            width: 150px;
-            height: 150px;
-            margin-right: 20px;
-            border: 4px solid var(--primary-color);
-            transition: transform 0.3s;
-            cursor: pointer;
-        }
-
-        .profile-img:hover {
-            transform: scale(1.05);
-        }
-
-        .profile-info {
-            flex: 1;
-        }
-
-        .status, .zanpakuto, .partners, .operations {
-            background: var(--section-bg);
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-
-        .status:hover, .zanpakuto:hover, .partners:hover, .operations:hover {
-            transform: translateY(-5px);
-        }
-
-        h2 {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        ul li {
-            margin: 10px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        ul li::before {
-            content: '•';
-            color: var(--primary-color);
-            position: absolute;
-            left: 0;
-        }
-
-        #theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--primary-color);
-            border: none;
-            color: var(--bg-color);
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 1001;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(248, 195, 0, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(248, 195, 0, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(248, 195, 0, 0);
-            }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @media (max-width: 768px) {
-            .profile {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .profile-img {
-                margin-right: 0;
-                margin-bottom: 20px;
-            }
-
-            nav ul {
-                flex-direction: column;
-            }
-
-            nav ul li {
-                margin: 5px 0;
-            }
-        }
-
-  
-        /* .quote-container {
-            font-style: italic;
-            text-align: center;
-            margin: 20px 0;
-            padding: 20px;
-            background: rgba(248, 195, 0, 0.1);
-            border-radius: 8px;
-        } */
-        .timeline {
-    position: relative;
-    max-width: 1000px;
-    margin: 50px auto;
-    padding: 20px 0;
-}
-
-.timeline::after {
-    content: '';
-    position: absolute;
-    width: 4px;
-    background-color: var(--primary-color);
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    margin-left: -2px;
-}
-
-.timeline-item {
-    padding: 10px 40px;
-    position: relative;
-    background-color: inherit;
-    width: 50%;
-    box-sizing: border-box;
-}
-
-.timeline-item::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    right: -10px;
-    background-color: var(--bg-color);
-    border: 4px solid var(--primary-color);
-    top: 15px;
-    border-radius: 50%;
-    z-index: 1;
-}
-
-.left {
-    left: 0;
-}
-
-.right {
-    left: 50%;
-}
-
-.right::after {
-    left: -10px;
-}
-
-.timeline-content {
-    padding: 20px;
-    background-color: var(--section-bg);
-    position: relative;
-    border-radius: 6px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-}
-
-.timeline-content:hover {
-    transform: scale(1.03);
-}
-
-.timeline-content h3 {
-    margin-top: 0;
-    color: var(--primary-color);
-}
-
-@media screen and (max-width: 600px) {
-    .timeline::after {
-        left: 31px;
-    }
-    
-    .timeline-item {
-        width: 100%;
-        padding-left: 70px;
-        padding-right: 25px;
-    }
-    
-    .timeline-item::after {
-        left: 21px;
-    }
-    
-    .right {
-        left: 0%;
-    }
-}
-    </style>
 </body>
 </html>
